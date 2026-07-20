@@ -1,4 +1,4 @@
--- Variables
+-- Variables kontol
     local ServiceCache = {};
     getgenv().Services = setmetatable({}, {__index = function(Self, Index)
         if not ServiceCache[Index] then
@@ -101,67 +101,6 @@ getgenv().Library = {
 }; do
 	local Library = getgenv().Library
 	Library.__index = Library
-
-    local RayfieldIcons
-    task.spawn(function()
-        pcall(function()
-            local success, res = pcall(function()
-                return loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/icons.lua"))()
-            end)
-            if success and type(res) == "table" then
-                RayfieldIcons = res["48px"] or res["24px"] or res
-            end
-        end)
-    end)
-
-    Library.ApplyRayfieldIcon = function(imageInstance, iconName)
-        if not imageInstance or not iconName or iconName == "" then return end
-        if type(imageInstance) == "table" and imageInstance.Instance then
-            imageInstance = imageInstance.Instance
-        end
-        if type(iconName) == "string" and (iconName:find("rbxassetid://") or iconName:find("http")) then
-            imageInstance.Image = iconName
-            return
-        end
-
-        local function apply()
-            if not RayfieldIcons then
-                pcall(function()
-                    local res = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/icons.lua"))()
-                    if type(res) == "table" then
-                        RayfieldIcons = res["48px"] or res["24px"] or res
-                    end
-                end)
-            end
-
-            if RayfieldIcons and type(iconName) == "string" then
-                local key = iconName:lower()
-                if key == "house" then key = "home" end
-                if key == "settings" then key = "cog" end
-                if key == "config" or key == "configs" then key = "folder" end
-                if key == "target" then key = "goal" end
-                if key == "stats" or key == "statistics" then key = "trending-up" end
-                if key == "theming" or key == "theme" then key = "palette" end
-
-                local data = RayfieldIcons[key] or RayfieldIcons[iconName]
-                if data then
-                    imageInstance.Image = "rbxassetid://" .. tostring(data[1])
-                    imageInstance.ImageRectSize = Vector2.new(data[2][1], data[2][2])
-                    imageInstance.ImageRectOffset = Vector2.new(data[3][1], data[3][2])
-                    return true
-                end
-            end
-            imageInstance.Image = iconName
-            return false
-        end
-
-        if not apply() then
-            task.spawn(function()
-                task.wait(1)
-                apply()
-            end)
-        end
-    end
 
     for _,path in Library.Folders do
         makefolder(Library.Directory .. path)
@@ -1794,16 +1733,12 @@ getgenv().Library = {
                     Parent = Items.Button.Instance;
                     Size = UDim2.new(0, 21, 0, 21);
                     AnchorPoint = Vector2.new(0, 0.5);
-                    Image = "";
+                    Image = Cfg.Icon;
                     BackgroundTransparency = 1;
                     Position = UDim2.new(0, 13, 0.5, 0);
                     ZIndex = 2;
                     BorderSizePixel = 0
                 }):Themify("Unselected", "ImageColor3"):Themify("Accent", "ImageColor3")
-
-                pcall(function()
-                    Library.ApplyRayfieldIcon(Items.Icon, Cfg.Icon)
-                end)
 
                 Items.Title = Library:Create( "TextLabel", {
                     FontFace = Themes.Preset.Font;
@@ -2185,24 +2120,6 @@ getgenv().Library = {
                 BackgroundColor3 = Themes.Preset["SectionBackground"]
             }):Themify("SectionBackground", "BackgroundColor3")
 
-            local sectionIconName = Data.Icon or Data.icon or Cfg.Icon
-            local titlePosX = 12
-            if sectionIconName and sectionIconName ~= "" then
-                titlePosX = 34
-                local secIcon = Library:Create( "ImageLabel", {
-                    ImageColor3 = Themes.Preset["Accent"];
-                    Parent = Items.Section.Instance;
-                    Size = UDim2.new(0, 16, 0, 16);
-                    Position = UDim2.new(0, 12, 0, 11);
-                    BackgroundTransparency = 1;
-                    BorderSizePixel = 0;
-                    ZIndex = 2
-                }):Themify("Accent", "ImageColor3")
-                pcall(function()
-                    Library.ApplyRayfieldIcon(secIcon, sectionIconName)
-                end)
-            end
-
             Library:Create( "TextLabel", {
                 FontFace = Themes.Preset.Font;
                 TextColor3 = Themes.Preset["Unselected"];
@@ -2210,7 +2127,7 @@ getgenv().Library = {
                 Parent = Items.Section.Instance;
                 AutomaticSize = Enum.AutomaticSize.XY;
                 BackgroundTransparency = 1;
-                Position = UDim2.new(0, titlePosX, 0, 10);
+                Position = UDim2.new(0, 12, 0, 10);
                 BorderSizePixel = 0;
                 ZIndex = 2
             }):Themify("Unselected", "TextColor3")

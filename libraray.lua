@@ -1,4 +1,4 @@
--- Variables
+-- Variables fdf
     local ServiceCache = {};
     getgenv().Services = setmetatable({}, {__index = function(Self, Index)
         if not ServiceCache[Index] then
@@ -1353,9 +1353,9 @@ getgenv().Library = {
         local Cfg = {
             Title = Data.Title or "Aether.lua";
             SubText = Data.SubText or "Baseplate";
-            Size = Data.Size or UDim2.fromOffset(820, 560);
+            Size = Data.Size or UDim2.fromOffset(760, 500);
             Image = Data.Image or "rbxassetid://95259225424429";
-            IsMobile = Data.IsMobile or false;
+            IsMobile = if Data.IsMobile ~= nil then Data.IsMobile else true;
 
             Position;
             Size;
@@ -1381,7 +1381,7 @@ getgenv().Library = {
 
             Library:Create( "UIScale", {
                 Parent = Items.Menu.Instance;
-                Scale = Data.Scale or 1.0
+                Scale = Data.Scale or 0.85
             })
 
             Items.Menu.Instance.Position = UDim2.fromOffset(Items.Menu.Instance.AbsolutePosition.X, Items.Menu.Instance.AbsolutePosition.Y)
@@ -1673,21 +1673,14 @@ getgenv().Library = {
             end
         end
 
-        if Cfg.IsMobile then
-            task.delay(Library.TweeningSpeed, function()
-                Items.Menu:TweenDescendants(true, Cfg)
-            end)
+        Items.Logo:OnClick(function()
+            if Cfg.Tweening then
+                return
+            end
 
-            Items.Logo:OnClick(function()
-                if Cfg.Tweening then
-                    return
-                end
-
-                Cfg.Visible = not Cfg.Visible
-
-                Cfg.SetVisible(Cfg.Visible)
-            end)
-        end
+            Cfg.Visible = not Cfg.Visible
+            Cfg.SetVisible(Cfg.Visible)
+        end)
 
         Library.Window = setmetatable(Cfg, Library)
 

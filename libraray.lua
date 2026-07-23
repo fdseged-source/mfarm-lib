@@ -1,4 +1,4 @@
--- Variables kontol
+-- Variablesdf
     local ServiceCache = {};
     getgenv().Services = setmetatable({}, {__index = function(Self, Index)
         if not ServiceCache[Index] then
@@ -101,6 +101,80 @@ getgenv().Library = {
 }; do
 	local Library = getgenv().Library
 	Library.__index = Library
+
+    local RayfieldIcons
+    task.spawn(function()
+        pcall(function()
+            local success, res = pcall(function()
+                return loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/icons.lua"))()
+            end)
+            if success and type(res) == "table" then
+                RayfieldIcons = res["48px"] or res["24px"] or res
+            end
+        end)
+    end)
+
+    local BuiltInIcons = {
+        ["home"] = {16898613509, {48, 48}, {820, 147}},
+        ["house"] = {16898613509, {48, 48}, {820, 147}},
+        ["cog"] = {16898613044, {48, 48}, {918, 563}},
+        ["settings"] = {16898613044, {48, 48}, {918, 563}},
+        ["folder"] = {16898613353, {48, 48}, {661, 918}},
+        ["config"] = {16898613353, {48, 48}, {661, 918}},
+        ["configs"] = {16898613353, {48, 48}, {661, 918}},
+        ["goal"] = {16898613509, {48, 48}, {563, 771}},
+        ["target"] = {16898613509, {48, 48}, {563, 771}},
+        ["trending-up"] = {16898613869, {48, 48}, {563, 869}},
+        ["stats"] = {16898613869, {48, 48}, {563, 869}},
+        ["statistics"] = {16898613869, {48, 48}, {563, 869}},
+        ["palette"] = {16898613699, {48, 48}, {869, 49}},
+        ["theme"] = {16898613699, {48, 48}, {869, 49}},
+        ["theming"] = {16898613699, {48, 48}, {869, 49}},
+    }
+
+    Library.ApplyRayfieldIcon = function(imageInstance, iconName)
+        if not imageInstance or not iconName or iconName == "" then return end
+        if type(imageInstance) == "table" and imageInstance.Instance then
+            imageInstance = imageInstance.Instance
+        end
+
+        local function apply()
+            if type(iconName) == "string" then
+                if iconName:find("rbxassetid://") or iconName:find("http") then
+                    imageInstance.Image = iconName
+                    imageInstance.ImageRectSize = Vector2.zero
+                    imageInstance.ImageRectOffset = Vector2.zero
+                    return true
+                end
+
+                local key = iconName:lower()
+                local data = BuiltInIcons[key]
+                if not data and RayfieldIcons then
+                    data = RayfieldIcons[key] or RayfieldIcons[iconName]
+                end
+
+                if data then
+                    imageInstance.Image = "rbxassetid://" .. tostring(data[1])
+                    imageInstance.ImageRectSize = Vector2.new(data[2][1], data[2][2])
+                    imageInstance.ImageRectOffset = Vector2.new(data[3][1], data[3][2])
+                    return true
+                end
+            end
+            -- Fallback to default home icon if string key is unrecognized
+            local fallback = BuiltInIcons["home"]
+            imageInstance.Image = "rbxassetid://" .. tostring(fallback[1])
+            imageInstance.ImageRectSize = Vector2.new(fallback[2][1], fallback[2][2])
+            imageInstance.ImageRectOffset = Vector2.new(fallback[3][1], fallback[3][2])
+            return false
+        end
+
+        if not apply() then
+            task.spawn(function()
+                task.wait(1)
+                apply()
+            end)
+        end
+    end
 
     for _,path in Library.Folders do
         makefolder(Library.Directory .. path)
@@ -1733,12 +1807,16 @@ getgenv().Library = {
                     Parent = Items.Button.Instance;
                     Size = UDim2.new(0, 21, 0, 21);
                     AnchorPoint = Vector2.new(0, 0.5);
-                    Image = Cfg.Icon;
+                    Image = "";
                     BackgroundTransparency = 1;
                     Position = UDim2.new(0, 13, 0.5, 0);
                     ZIndex = 2;
                     BorderSizePixel = 0
                 }):Themify("Unselected", "ImageColor3"):Themify("Accent", "ImageColor3")
+
+                pcall(function()
+                    Library.ApplyRayfieldIcon(Items.Icon, Cfg.Icon)
+                end)
 
                 Items.Title = Library:Create( "TextLabel", {
                     FontFace = Themes.Preset.Font;
@@ -1868,9 +1946,9 @@ getgenv().Library = {
                     Size = UDim2.new(0, 0, 1, 0);
                     BorderSizePixel = 0;
                     AutomaticSize = Enum.AutomaticSize.X;
-                    BackgroundColor3 = Themes.Preset["Accent"];
+                    BackgroundColor3 = Themes.Preset["Inline"];
                     ZIndex = 9999
-                }):Themify("Accent", "BackgroundColor3")
+                }):Themify("Inline", "BackgroundColor3")
 
                 -- No gradient for subpage tab buttons
 
@@ -1888,17 +1966,17 @@ getgenv().Library = {
                     AnchorPoint = Vector2.new(0, 0.5);
                     Size = UDim2.new(0, 0, 1, 0);
                     BackgroundTransparency = 1;
-                    Position = UDim2.new(0, 8, 0.5, -1);
+                    Position = UDim2.new(0, 0, 0.5, 0);
                     BorderSizePixel = 0;
                     ZIndex = 2;
-                    BackgroundColor3 = Themes.Preset["ElementBackground"]
-                }):Themify("ElementBackground", "BackgroundColor3")
+                })
 
                 Library:Create( "UIPadding", {
                     Parent = MiscItems.Button.Instance;
-                    PaddingTop = UDim.new(0, 2);
-                    PaddingRight = UDim.new(0, 7);
-                    PaddingLeft = UDim.new(0, -3);
+                    PaddingTop = UDim.new(0, 4);
+                    PaddingBottom = UDim.new(0, 4);
+                    PaddingRight = UDim.new(0, 12);
+                    PaddingLeft = UDim.new(0, 12);
                 })
 
                 MiscItems.Outline = Library:Create( "UIStroke", {
@@ -2004,7 +2082,7 @@ getgenv().Library = {
                     OldTab.Items.Page:TweenDescendants(false, OldTab)
                 end
 
-                MiscItems.Text:Tween({TextColor3 = Themes.Preset.TextColor})
+                MiscItems.Text:Tween({TextColor3 = Themes.Preset.Accent})
                 MiscItems.Outline:Tween({Transparency = 0})
                 MiscItems.Button:Tween({BackgroundTransparency = 0})
                 MiscItems.Page.Instance.Size = UDim2.new(1, -40, 1, -40)
@@ -2120,6 +2198,24 @@ getgenv().Library = {
                 BackgroundColor3 = Themes.Preset["SectionBackground"]
             }):Themify("SectionBackground", "BackgroundColor3")
 
+            local sectionIconName = Data.Icon or Data.icon or Cfg.Icon
+            local titlePosX = 12
+            if sectionIconName and sectionIconName ~= "" then
+                titlePosX = 34
+                local secIcon = Library:Create( "ImageLabel", {
+                    ImageColor3 = Themes.Preset["Accent"];
+                    Parent = Items.Section.Instance;
+                    Size = UDim2.new(0, 16, 0, 16);
+                    Position = UDim2.new(0, 12, 0, 11);
+                    BackgroundTransparency = 1;
+                    BorderSizePixel = 0;
+                    ZIndex = 2
+                }):Themify("Accent", "ImageColor3")
+                pcall(function()
+                    Library.ApplyRayfieldIcon(secIcon, sectionIconName)
+                end)
+            end
+
             Library:Create( "TextLabel", {
                 FontFace = Themes.Preset.Font;
                 TextColor3 = Themes.Preset["Unselected"];
@@ -2127,7 +2223,7 @@ getgenv().Library = {
                 Parent = Items.Section.Instance;
                 AutomaticSize = Enum.AutomaticSize.XY;
                 BackgroundTransparency = 1;
-                Position = UDim2.new(0, 12, 0, 10);
+                Position = UDim2.new(0, titlePosX, 0, 10);
                 BorderSizePixel = 0;
                 ZIndex = 2
             }):Themify("Unselected", "TextColor3")

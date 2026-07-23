@@ -1,4 +1,4 @@
--- Variablesdf
+-- Variables
     local ServiceCache = {};
     getgenv().Services = setmetatable({}, {__index = function(Self, Index)
         if not ServiceCache[Index] then
@@ -1947,7 +1947,7 @@ getgenv().Library = {
                     BorderSizePixel = 0;
                     AutomaticSize = Enum.AutomaticSize.X;
                     BackgroundColor3 = Themes.Preset["Inline"];
-                    ZIndex = 9999
+                    ZIndex = 2
                 }):Themify("Inline", "BackgroundColor3")
 
                 -- No gradient for subpage tab buttons
@@ -1962,13 +1962,14 @@ getgenv().Library = {
                     Parent = MiscItems.Button.Instance;
                     TextColor3 = Themes.Preset["Unselected"];
                     Text = Page;
-                    AutomaticSize = Enum.AutomaticSize.XY;
-                    AnchorPoint = Vector2.new(0, 0.5);
+                    AutomaticSize = Enum.AutomaticSize.X;
                     Size = UDim2.new(0, 0, 1, 0);
                     BackgroundTransparency = 1;
-                    Position = UDim2.new(0, 0, 0.5, 0);
+                    Position = UDim2.new(0, 0, 0, 0);
+                    TextXAlignment = Enum.TextXAlignment.Center;
+                    TextYAlignment = Enum.TextYAlignment.Center;
                     BorderSizePixel = 0;
-                    ZIndex = 2;
+                    ZIndex = 10000;
                 })
 
                 Library:Create( "UIPadding", {
